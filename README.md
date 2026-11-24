@@ -8,6 +8,8 @@ A set of beginner-to-intermediate data projects built with Python, based on a da
 | 2 | [Price predictor (machine learning)](#project-2-used-car-price-predictor) | Done |
 | 3 | [Interactive dashboard (Streamlit)](#project-3-interactive-price-dashboard) | Done |
 
+**Try the live dashboard:** https://used-car-price-prediction-8hqykpmeu5ejt3tat4cges.streamlit.app
+
 ---
 
 ## Project 1: Used Car Prices, Exploratory Data Analysis
@@ -90,6 +92,8 @@ Using the cleaned data from Project 1, I trained and compared machine learning m
 ---
 
 ## Project 3: Interactive Price Dashboard
+
+**Live app:** https://used-car-price-prediction-8hqykpmeu5ejt3tat4cges.streamlit.app
 
 **Question:** can someone without any machine learning or spreadsheet skills get a price estimate for their car in a few clicks?
 
