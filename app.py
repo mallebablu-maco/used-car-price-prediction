@@ -5,10 +5,16 @@ a user estimate a car's resale price from its details, plus explore the
 cleaned dataset from notebooks/01_eda.ipynb.
 """
 
+from pathlib import Path
+
 import joblib
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
 
 NUMERIC_FEATURES = ["Year", "Kilometers_Driven", "Mileage", "Engine", "Power", "Seats"]
 CATEGORICAL_FEATURES = ["Brand", "Fuel_Type", "Transmission", "Owner_Type", "Location"]
@@ -49,7 +55,30 @@ def load_data():
 
 @st.cache_resource
 def load_model():
-    return joblib.load("models/price_model.joblib")
+    model_path = Path("models/price_model.joblib")
+    if model_path.exists():
+        return joblib.load(model_path)
+
+    # No saved model on disk (e.g. a fresh deploy, where the 81MB file isn't
+    # committed to git). Train one now from the cleaned data — takes a few
+    # seconds — and cache it for the rest of this server's lifetime.
+    data = pd.read_csv("data/cars_clean.csv")
+    X = data[NUMERIC_FEATURES + CATEGORICAL_FEATURES]
+    y = data["Price"]
+
+    prepare = ColumnTransformer([
+        ("numbers", "passthrough", NUMERIC_FEATURES),
+        ("labels", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_FEATURES),
+    ])
+    pipeline = Pipeline([
+        ("prepare", prepare),
+        ("model", RandomForestRegressor(n_estimators=200, random_state=42, n_jobs=-1)),
+    ])
+    pipeline.fit(X, y)
+
+    model_path.parent.mkdir(exist_ok=True)
+    joblib.dump(pipeline, model_path)
+    return pipeline
 
 
 st.set_page_config(page_title="Used Car Price Predictor", page_icon="🚗", layout="wide")
